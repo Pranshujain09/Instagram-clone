@@ -1,0 +1,82 @@
+ COMMANDS ON TERMINAL
+
+ 1)mkdir server
+ 2)cd server
+ 3)npm i express body-parser bcrypt cors dotenv gridfs-stream multer multer-gridfs-storage helmet mo
+rgan jsonwebtoken mongoose
+4)npm init -y
+it will create a new package.json file in the current directory without asking you any questions, as it automatically assumes "yes" for all the prompts.
+
+
+
+
+IMPORTS:
+
+1)import dotenv from "dotenv";
+*The dotenv library allows you to store configuration data, API keys, or other sensitive information in a .env file, separate from your codebase
+*Instead of hardcoding these values into the code, which can be a security risk and require code changes for different environments, developers use environment variables to keep these settings separate from the codebase.
+
+
+
+CONFIGURATIONS:
+
+
+const __filename = fileURLToPath(import.meta.url);
+it gets the file URL of the current module using import.meta.url (In Node.js, the import.meta object provides information about the current module being executed. The import.meta.url property contains the full URL of the current module's file location.) and then converts it to a file path using fileURLToPath, storing the result in the __filename variable(it is a common convention)
+Why it is needed to convert URL to path?--many Node.js modules and APIs expect and operate with file paths. 
+
+
+const __dirname = path.dirname(__filename);
+The path module is a built-in module in Node.js that provides utilities for working with file and directory paths. path.dirname() is one of the functions available in this module, and it returns the directory name of a given file path.
+In this line, path.dirname(__filename) takes the previously obtained __filename (which holds the absolute file path of the current module) and extracts its directory name, assigning it to the __dirname variable.
+
+
+dotenv.config();
+The dotenv.config() call reads the variables from the .env file and makes them available to the application through process.env.
+
+
+const app = express();
+ You can think of app as a mini-app that can handle routes, middleware, and other functionalities provided by Express.
+
+
+app.use(express.json());
+This line adds the built-in Express middleware express.json(). It is used to parse incoming requests with JSON data. When the server receives a request with a JSON body, this middleware parses the JSON data and makes it accessible via req.body in your route handlers.
+
+app.use(helmet());
+*This line adds the helmet middleware, which is used for securing your Express application by setting various HTTP headers to improve security. Helmet helps protect against common web vulnerabilities.
+ *Common web vulnerabilities for example- it informs the browser to always access the application over HTTPS, even if the user types "http://" in the address bar.
+
+
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+*This line enables the Cross-Origin Resource Policy (CORP) by using the helmet.crossOriginResourcePolicy middleware. The specified policy is set to "cross-origin," which allows cross-origin access to the resources on the server. 
+*this is useful for granting permissions to web pages  hosted on different domains to make requests to your server and access specific resources (e.g., APIs, files, data) hosted on your server.
+*(In web development, a same-origin policy is enforced by web browsers as a security measure. This policy restricts web pages from making requests to a different domain than the one from which they originated. For example, a web page hosted on example.com cannot directly make an AJAX request to fetch data from api.example2.com due to the same-origin policy.)
+
+
+
+app.use(morgan("common"));
+*This line adds the morgan middleware, which is a popular logger for Express applications.
+ *It logs information about each incoming request, such as the request method, status, response time, and more. 
+ *The "common" parameter passed to morgan specifies the predefined log format to use.
+
+
+
+app.use(bodyParser.json({ limit: "30mb", extended: true }));
+
+
+app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+*middleware that extracts the body portion of an incoming HTTP request and makes it available in the req.body property.
+ * urlencoded  because we will use URL for accessing body
+*bodyParser.urlencoded() middleware will handle form data up to the default limit.If the form data exceeds the default limit, it will be truncated or rejected, and your server won't receive the entire request body.(The default limit-100kb or less.)
+
+
+app.use(cors());
+can be used but not used yet
+
+
+app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+*means that any request to URLs starting with "/assets" will trigger the express.static middleware to look for the corresponding file in the "public/assets" directory of your project and serve it back to the client.
+*(__dirname, "public/assets") : constructs the absolute path to the directory containing the static files. __dirname is a Node.js global variable that represents the current directory where the script is located
+*path.join() is a method from the built-in path module in Node.js that joins the provided path segments to create a valid path. The result Will be same if you don't use it.
+*For example, if you have an image file named "logo.png" located at "public/assets/logo.png" in your project, a request to "/assets/logo.png" will fetch and serve that file to the client, allowing the image to be displayed on a web page.
+*This middleware setup is commonly used to serve static files, such as images, stylesheets, client-side JavaScript files, or other assets that don't need to be processed dynamically by the server.It's an efficient way to serve such files directly to the client, improving the performance and load times of your web pages.
