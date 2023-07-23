@@ -80,3 +80,51 @@ app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 *path.join() is a method from the built-in path module in Node.js that joins the provided path segments to create a valid path. The result Will be same if you don't use it.
 *For example, if you have an image file named "logo.png" located at "public/assets/logo.png" in your project, a request to "/assets/logo.png" will fetch and serve that file to the client, allowing the image to be displayed on a web page.
 *This middleware setup is commonly used to serve static files, such as images, stylesheets, client-side JavaScript files, or other assets that don't need to be processed dynamically by the server.It's an efficient way to serve such files directly to the client, improving the performance and load times of your web pages.
+
+
+
+
+FILE STORAGE
+
+
+const storage = multer.diskStorage({
+    destination: function(req,file,cb){
+        cb(null,"public/assets");
+    };
+    filename: function0req, file,cb){
+        cb(null,file.originalname);
+    },
+});
+const upload= multer({storage});
+
+
+
+
+STEP1- CREATE STORAGE CONFIGURATION OBJECT
+
+*to define how the uploaded files should be stored on the server.
+
+1)const storage = multer.diskStorage({ ... });: This line creates a diskStorage configuration object for multer. The diskStorage is one of the two built-in storage engines provided by multer, the other being memoryStorage. The diskStorage engine allows you to define the destination directory and file naming strategy for the uploaded files.
+* "storage engine" refers to a  module that defines how uploaded files should be stored and managed on the server's file system or in cloud storage.
+
+2)destination: function (req, file, cb) { ... }: 
+This is a function that determines the destination directory where the uploaded files will be stored. It takes three arguments:
+req: The Express.js request object.
+file: An object representing the uploaded file.
+cb: A callback function to signal the destination directory.
+
+3) cb(null,"public/assets");
+cb function is used to pass an error (if any) as the first argument and the destination directory as the second argument. In this case, the first argument null represents that there is no error, and the second argument "public/assets" specifies the destination directory where the uploaded files should be stored.
+
+4)filename: function (req, file, cb) { ... }
+This is a function that determines the filename for the uploaded file. It takes the same three arguments as the destination function. In this example, the filename is set to the original name of the uploaded file, which means the uploaded file will retain its original name.
+
+STEP2 - Initialize Multer Middleware with the Storage Configuration
+const upload = multer({ storage });
+After creating the storage configuration object, you pass it to multer to create the actual middleware function that handles file uploads.
+*cb(null,"public/assets")--the { storage } syntax is an ES6 shorthand notation that is used when the property name and value have the same name. It is equivalent to { storage: storage }, but since the property name matches the variable name, you can use the shorthand.
+
+STEP3- Use Multer Middleware with Express-
+Finally, you use the created multer middleware function with app.use() or within specific routes in your Express application to handle file uploads.
+
+
