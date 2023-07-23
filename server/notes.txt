@@ -128,3 +128,13 @@ STEP3- Use Multer Middleware with Express-
 Finally, you use the created multer middleware function with app.use() or within specific routes in your Express application to handle file uploads.
 
 
+
+MAKE AN .env file
+MONGO_URL="mongodb+srv://dummyuser:<password>@cluster0.2cozgta.mongodb.net/?retryWrites=true&w=majority";
+PORT=3001
+
+
+MONGOOSE SETUP
+
+const PORT = process.env.PORT || 6001;
+M
