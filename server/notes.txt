@@ -173,6 +173,9 @@ mongoose
 
 
 
+
+
+
 AUTHENTICATION- When a user register or login
 Authorisation- once a user is Locked in you perform some actions like the user can see posts only if she/he is logged in
 
@@ -181,11 +184,26 @@ ROUTES WITH FILES
 app.post("/auth/register" , upload.single("picture"), register);
 
  *upload is the middleware by using this we are going to upload the picture In assets folder.
+ *"/auth/register": This is the route path or URL pattern. When a client sends a POST request to your server with the URL /auth/register, Express will match it with this route, and the corresponding code block will be executed.
+ *app.post("/auth/register", upload.single("picture"), register);: This line of code defines a route for handling the registration process (/auth/register). It uses upload.single("picture") as middleware specifically for this route to handle the file upload. It means that when a request is made to this endpoint with a file uploaded using the form field named "picture", multer will handle the file upload, and the register controller function will handle the registration process.
+ * we can not use -app.use(upload) because This line of code applies the upload multer middleware globally to all routes. It means that for every incoming request to any route, multer will attempt to handle file uploads using the upload middleware. 
  *Register-To save the user in the database this is the main logic in this
 
 
  import {register} from "controllers/auth.js";
 make a folder in server- controllers> make a file- auth.js
+
+If You export like this :   export const register = (req, res) => {
+                            // ... registration logic ...
+                             };
+Your import looks like this :      import {register} from "controllers/auth.js";
+
+But if You export like this :  const register = (req, res) => {
+                           // ... registration logic ...
+                           };
+
+                         export default register;
+Your import will look like this :    import register from "controllers/auth.js";
 
 
 AUTH.JS
@@ -199,7 +217,8 @@ This will help us to send the user of web token which they can use for  Authenti
 
 import User from "../models/User.js";
 It imports the User model from "../models/User.js". This model will be used to create and save the new user's data in the database.
-
+./ - indicates that the module  is located in the same directory
+../ - module is one level up from the current directory.
 Server > create folder models > create file user.js
 
  
@@ -363,6 +382,7 @@ Creating and Saving the User:
 
  const savedUser = await newUser.save();
  *Inside the try block, the function attempts to save the new user (represented by the newUser object) to the database using the newUser.save() method. 
+ * .save() is a method of mongoose
  *By using await, the function pauses and waits for the newUser.save() promise to be resolved before proceeding. This ensures that the user is saved before moving on to the next line of code.
 
 
@@ -376,3 +396,8 @@ catch (err) {
     res.status(500).json({ error: err.message });
   }
 If an error occurs during the saving process, the function jumps to the catch block, and the error is caught in the err parameter. The function then sets the HTTP status code to 500 (Internal Server Error) and sends an error response as JSON with the error message using res.json({ error: err.message }).
+
+Error and err.message are part of JS and are predefined.
+Error- use this constructor to create new error instances
+err, refers to the error object that has been caught. The error object has properties, and one of them is message, which contains a human-readable description of the error.
+
