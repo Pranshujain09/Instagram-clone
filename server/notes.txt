@@ -135,6 +135,244 @@ PORT=3001
 
 
 MONGOOSE SETUP
+this code sets up a server using Express and connects it to a MongoDB database using Mongoose
 
 const PORT = process.env.PORT || 6001;
-M
+mongoose
+.connect(process.env.MONGO_URL,{
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(()=>
+    app.listen(PORT,()=>
+        console.log(`server running on port ${PORT}`)
+    ))
+
+.catch((error)=>console.log(`${error} did not connect`));
+
+
+1)process.env.PORT
+*If you do not define your port, process.env.PORT will likely be undefined, and if you use const PORT = process.env.PORT || 3000;, the default port number 3000 will be used.
+*const PORT = process.env.PORT || 6001;: This line sets up the port on which the server will listen for incoming HTTP requests. It uses the process.env.PORT environment variable to dynamically set the port
+
+
+2)mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+ This line connects the server to a MongoDB database. It uses the MONGO_URL environment variable to specify the MongoDB connection URI. The useNewUrlParser and useUnifiedTopology options are provided to avoid deprecation warnings when using the latest versions of Mongoose and MongoDB.
+
+3).then(() => { app.listen(PORT, () => console.log(Server Port: ${PORT})); })
+ This part of the code is a Promise chain. It registers a .then() callback, which executes when the database connection is successfully established. Inside this callback, the Express app starts listening for incoming HTTP requests on the specified PORT.
+
+4).catch((error) => console.log(${error} did not connect));: This part of the code is another Promise chain. If there is an error while connecting to the MongoDB database, the .catch() callback will execute, and an error message will be logged to the console.
+
+5)(process.env.PORT and process.env.MONGO_URL) allows for easy configuration and deployment, as you can change these values depending on the environment (development, production, etc.) without modifying the code itself.
+
+
+
+
+
+
+
+
+AUTHENTICATION- When a user register or login
+Authorisation- once a user is Locked in you perform some actions like the user can see posts only if she/he is logged in
+
+ROUTES WITH FILES
+
+app.post("/auth/register" , upload.single("picture"), register);
+
+ *upload is the middleware by using this we are going to upload the picture In assets folder.
+ *Register-To save the user in the database this is the main logic in this
+
+
+ import {register} from "controllers/auth.js";
+make a folder in server- controllers> make a file- auth.js
+
+
+AUTH.JS
+
+import bcrypt from "bcrypt";
+ to encrypt our password before storing it in the database
+
+import jwt from "jsonwebtoken";
+This will help us to send the user of web token which they can use for  Authentication and authorisation
+  
+
+import User from "../models/User.js";
+It imports the User model from "../models/User.js". This model will be used to create and save the new user's data in the database.
+
+Server > create folder models > create file user.js
+
+ 
+
+
+USER.JS
+
+import mongoose from "mongoose";
+* mongoose- This refers to the Mongoose library for MongoDB and Node.js. It allows developers to interact with MongoDB using JavaScript objects 
+*Will help you set our model
+
+
+const UserSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
+      min: 2,
+      max: 50,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      min: 2,
+      max: 50,
+    },
+    email: {
+      type: String,
+      required: true,
+      max: 50,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      min: 5,
+    },
+    picturePath: {
+      type: String,
+      default: "",
+    },
+    friends: {
+      type: Array,
+      default: [],
+    },
+    location: String,
+    occupation: String,
+    viewedProfile: Number,
+    impressions: Number,
+  },
+  { timestamps: true }
+
+);
+
+const User = mongoose.model("User", UserSchema);
+export default User;
+
+
+
+
+
+*const UserSchema = new mongoose.Schema
+UserSchema: This is the schema or blueprint for the documents in the "User" collection
+describes the structure and properties of the documents that can be stored in the "User" collection.
+
+* { timestamps: true } - this will give us dates when it was created, updated
+
+*const User = mongoose.model("User", UserSchema);
+-creates a Mongoose model named "User" using the mongoose.model() method
+-A Mongoose model is a JavaScript class that maps to a MongoDB collection and defines the shape of the documents within that collection.
+-"User":  name of the model. 
+
+
+ 
+
+ AUTH.JS
+
+ export const register = async (req, res) => {
+  try {
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      picturePath,
+      friends,
+      location,
+      occupation,
+    } = req.body;
+
+    const salt = await bcrypt.genSalt();
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password: passwordHash,
+      picturePath,
+      friends,
+      location,
+      occupation,
+      viewedProfile: Math.floor(Math.random() * 10000),
+      impressions: Math.floor(Math.random() * 10000),
+    });
+    const savedUser = await newUser.save();
+    res.status(201).json(savedUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+* The register function is an asynchronous function that accepts a req (request) and res (response) as its parameters.
+- It handles the registration process when a new user signs up.
+- An asynchronous function is a type of function in programming that allows non-blocking execution. When an asynchronous function is called, it doesn't block the program's execution but continues to execute other code while waiting for the asynchronous task to complete. This allows the program to be more responsive and efficient
+
+
+
+try {
+  // Code that might throw an error (exceptions)
+} catch (error) {
+  // Code to handle the error
+}
+
+
+*try {
+    const {
+      firstName,
+      lastName.....
+    } = req.body;
+
+we are doing Array destructuring. this is same as:
+const firstName = req.body.firstName;
+const lastName = req.body.lastName;
+const email = req.body.email;......
+
+
+const salt = await bcrypt.genSalt();
+-calls the asynchronous function bcrypt.genSalt()
+-The genSalt() function generates a new random salt that will be used to hash the password.
+-await- If you don't include the await keyword ,the function will not pause and wait for the asynchronous genSalt() function to complete, it will return a promise directly, and the code will continue executing without waiting for the result of genSalt().
+-it is used with asynchronous functions to pause the execution of code until the awaited asynchronous operation is complete. 
+-salt" is a random value that is added to a password before hashing it. The primary purpose of using a salt is to increase the security of password 
+
+
+const passwordHash = await bcrypt.hash(password, salt);
+This function takes two arguments: the password that needs to be hashed and the salt generated in the previous step.
+
+
+
+
+const newUser = new User({
+      firstName,
+      lastName,
+      email......
+Creating and Saving the User:
+-The function then creates a new instance of the User model with the extracted user data, including the hashed password. 
+ -it generates and assigns random values to viewedProfile and impressions fields.
+
+
+
+ const savedUser = await newUser.save();
+ *Inside the try block, the function attempts to save the new user (represented by the newUser object) to the database using the newUser.save() method. 
+ *By using await, the function pauses and waits for the newUser.save() promise to be resolved before proceeding. This ensures that the user is saved before moving on to the next line of code.
+
+
+
+res.status(201).json(savedUser);
+If the user is successfully saved to the database, the function sets the HTTP status code to 201 (Created) using res.status(201)
+ and sends the saved user object as a JSON response using res.json(savedUser).
+
+
+catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+If an error occurs during the saving process, the function jumps to the catch block, and the error is caught in the err parameter. The function then sets the HTTP status code to 500 (Internal Server Error) and sends an error response as JSON with the error message using res.json({ error: err.message }).
