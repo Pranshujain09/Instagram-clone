@@ -19,5 +19,6 @@ Delete this from App.js
 
 import logo from './logo.svg';
 
+
 in index.CSS
  fonts.google.com -Copy import link from rubik Google font and paste it in index.css (regular 400, medium 500 ,bold 700)
