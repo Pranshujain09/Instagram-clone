@@ -22,3 +22,47 @@ import logo from './logo.svg';
 
 in index.CSS
  fonts.google.com -Copy import link from rubik Google font and paste it in index.css (regular 400, medium 500 ,bold 700)
+
+
+html,
+body,
+#root,
+.app{
+  height: 100%;
+  width: 100%;
+  font-family: "Rubik", sans-serif;
+  
+}
+
+ jsconfig.json:
+
+ {
+    "compilerOptions": {
+        "baseUrl": "src"
+    },
+    "include": ["src"]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+Make folders in src
+
+
+ state- file index.js
+  scenes- homepage, login page ,navbar ,profile page, budgets,
+   components
+state-index.js 
+(state folder for -redux and toolkit info (to keep data and components seperate))
+
+
+
+make index.jsx file in home page
